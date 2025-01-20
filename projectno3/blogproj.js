@@ -1,9 +1,10 @@
 import express from 'express'
 //import { parse } from 'next/dist/build/swc/generated-native';
 //import { use } from 'react';
+import db from './dbs.js';
 const app =  express();
 app.use(express.json());
-const PORT = process.env.PORT ||1880;
+const PORT = process.env.PORT ||1883;
 const Post = [{id:1, title: "First post" ,content:"This is my fist post",author: "Alice"},
     {id:2, title: "Second post" ,content:"This is my Second Human",author: "Damon"},
     {id:3, title: "Litrature is my Dream post" ,content:"Damon is bad",author: "Stefan"}
@@ -18,8 +19,13 @@ app.listen(PORT,(req, res)=>{
 
 // display on which server  started and implicates it can be accessed by that port
 app.get('/posts',(req, res)=>{
-
-   res.send(Post);
+  db.query('SHOW Tables;', (err, results) => {
+    if (err) {
+        return res.status(500).json({ error: 'Database query failed', details: err });
+    }
+    res.status(200).json(results);
+});
+ //  res.send(Post);
 });
 // to get all  blogged posts
 
@@ -95,3 +101,37 @@ app.delete("/posts/:id",(req, res)=>{
    Post.splice(findUser, 1);
    return res.status(200).send(`Deleted Successfully! `);
 });// this works
+
+
+
+//========================================  FOR COMMENT SECTION
+
+app.post("/posts/:id/comments",(req, res)=>{
+        const id =req.params.id;
+        const cm = req.body;
+         console.log(req.body)
+        const parsedId = parseInt(id);
+        if(isNaN(parsedId)) return res.status(400);
+
+        const findUserIndex =  Post.findIndex((user)=>user.id === parsedId);
+        
+        if(findUserIndex === -1) return res.status(404); 
+        Post.cm.push(Comments);
+        return res.status(200).send('Comment written Successfully');
+});
+// on the given id try to  write a comments
+ app.get("/posts/:id/comments",(req, res)=>{
+
+ })
+ // depending on the id of the posts  try to read the  written comments
+
+ app.patch("/comments/:id",(req, res)=>{
+
+ });
+ // this functions for updating a comments with giving the id of the comment
+
+ 
+ app.delete("/comments/:id",(req, res)=>{
+
+ });
+ // and the last one is deleting a comment based on it's id.
