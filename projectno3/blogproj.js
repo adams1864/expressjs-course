@@ -1,4 +1,5 @@
 import express from 'express'
+//import { parse } from 'next/dist/build/swc/generated-native';
 //import { use } from 'react';
 const app =  express();
 app.use(express.json());
@@ -9,9 +10,12 @@ const Post = [{id:1, title: "First post" ,content:"This is my fist post",author:
 ];
  
 const Comments = [{id:"", postId: "" ,content:"",author: ""}];
+
 app.listen(PORT,(req, res)=>{
     console.log(`Server Running on port ${PORT}`);
 });
+
+
 // display on which server  started and implicates it can be accessed by that port
 app.get('/posts',(req, res)=>{
 
@@ -31,44 +35,63 @@ app.get('/posts/:id', (req, res) => {
     const parsedID = parseInt(id);
   
     if (isNaN(parsedID)) {
+
       return res.status(400).send('Invalid ID');
+
     }
   
     const findUser = Post.find(user => user.id === parsedID);
   
+
     if (!findUser) {
+    
       return res.status(404).send('Post not found');
+    
     }
   
+    
     return res.status(200).send(findUser);
+  
   });
   
   
 // to read or get a specific   post we will call it by it's :id route parameter
 
 app.patch('/posts/:id',(req,res )=>{
-    const {body,params:{id},} = req;
+    const {
+      body,
+      params: { id },
+    } = req;
     const parsedID = parseInt(id);
   
     if (isNaN(parsedID)) {
       return res.status(400).send('Invalid ID');
     }
   
-    const findUser = Post.find(user => user.id === parsedID);
+    const findUserIndex = Post.findIndex(user => user.id === parsedID);
   
-    if (!findUser) {
+    if (findUserIndex=== -1) {
       return res.status(404).send('Post not found');
     }
     
-    mockusers[finduserindex]  = {... mockusers[finduserindex], ... body};
+    Post[findUserIndex]  = {... Post[findUserIndex], ... body};
   
-    return res.status(200).send(findUser);
+    return res.status(200).send(`Patch Updated Sucessfully`);
   });
 
- // to update a post we use patch request to only to update partially
+ // to update a post we use patch request to only to update partially (THIS WORKD ALSO)
 
 
 app.delete("/posts/:id",(req, res)=>{
-
-
-});
+  const {id} = req.params;
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) {
+   return res.status(400).send('Invalid ID');
+ }
+  const findUser = Post.findIndex((user)=>user.id === parsedId);
+   if (findUser === -1) {
+     return res.status(404).send('Post not found');
+   }
+   Post.splice(findUser, 1);
+   return res.status(200).send(`Deleted Successfully! `);
+});// this works
