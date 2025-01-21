@@ -19,7 +19,7 @@ app.listen(PORT,(req, res)=>{
 
 // display on which server  started and implicates it can be accessed by that port
 app.get('/posts',(req, res)=>{
-  db.query('SHOW Tables;', (err, results) => {
+  db.query('SELECT *FROM posts', (err, results) => {
     if (err) {
         return res.status(500).json({ error: 'Database query failed', details: err });
     }
@@ -30,9 +30,24 @@ app.get('/posts',(req, res)=>{
 // to get all  blogged posts
 
 app.post('/posts',(req, res)=>{
-    console.log(req.body);
-     Post.push(req.body);
-    return res.send(200);
+  const { title, content, author } = req.body; // I'll expect these values coming from the client
+
+  if (title && content && author) {
+    const query = `INSERT INTO posts (title, content, author) VALUES (?, ?, ?)`;
+    db.query(query, [title, content, author], (err, results) => {
+      if (err) {
+        return res.status(500).send('Error creating blog post');
+      } else {
+        res.status(201).send({ msg: 'Blog Created' });
+      }
+    });
+  } else {
+    console.log('Error Creating Blog');
+    res.status(400).send('Missing fields');
+  }
+   // console.log(req.body);
+   //  Post.push(req.body);
+   // return res.send(200);
 });
 // to create a blog page  we use post method
 
